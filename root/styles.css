@@ -1,0 +1,78 @@
+@font-face {
+        font-family: 'Helvetica-Condensed';
+        src: url('./assets/fonts/HelveticaNeueLT-Condensed.ttf') format('truetype'); 
+    }
+@font-face {
+        font-family: 'Helvetica';
+        src: url('fonts/helvetica.ttf');
+    }
+@font-face {
+        font-family: 'Helvetica-Tarjetero';
+        src: url('./assets/fonts/HelveticaNeueLTPro-Roman.ttf') format('truetype');
+    }
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family:'Helvetica-Cora', 'Arial', sans-serif;
+    /* 'Poppins', sans-serif; */
+    background: #e5e5e5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 50px;
+}
+
+.interface-container {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* Panel de Controles */
+.controls {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.controls h2 { margin-bottom: 20px; font-size: 18px; }
+.controls label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+.controls input { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; }
+
+#btnExport {
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+#container {
+    width: 480px;
+    height: 640px;
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    border-radius: 8px;
+}
+
+#bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
