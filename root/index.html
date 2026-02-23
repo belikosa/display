@@ -150,49 +150,49 @@
 </div>
 
 <script>
-    // Manejo de la carga de imagen
-    document.getElementById('uploadImg').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+// 1. FUNCIÓN PARA CARGAR Y MOSTRAR LA IMAGEN
+document.getElementById('uploadImg').addEventListener('change', function(e) {
+    const reader = new FileReader();
+    const file = e.target.files[0];
 
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            const img = document.getElementById('imgField');
-            img.src = evt.target.result;
-            img.style.display = 'block';
-        };
+    reader.onload = function(event) {
+        const imgField = document.getElementById('imgField');
+        imgField.src = event.target.result;
+        imgField.style.display = 'block'; // Forzamos que se vea
+    }
+
+    if (file) {
         reader.readAsDataURL(file);
-    });
+    }
+});
 
-    document.getElementById('btnExport').addEventListener('click', function() {
+// 2. FUNCIÓN PARA EXPORTAR (Sin errores de desplazamiento)
+document.getElementById('btnExport').addEventListener('click', function() {
     const btn = this;
     const container = document.getElementById('container');
     
     btn.innerText = "Generando...";
     btn.disabled = true;
 
-    setTimeout(() => {
-        html2canvas(container, {
-            width: 480,        // Fuerza el ancho a 480px
-            height: 640,       // Fuerza el alto a 640px
-            scale: 1,          // Escala 1 para mantener el tamaño original exacto
-            useCORS: true,
-            logging: false,
-            backgroundColor: null 
-        }).then(function(canvas) {
-            const link = document.createElement('a');
-            link.download = 'cora_display_' + Date.now() + '.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            
-            btn.innerText = "2. Exportar Display (PNG)";
-            btn.disabled = false;
-        }).catch(err => {
-            console.error("Error al exportar:", err);
-            btn.disabled = false;
-            btn.innerText = "Error al exportar";
-        });
-    }, 300);
+    html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        // Importante: eliminamos transforms internos durante la captura
+        onclone: (clonedDoc) => {
+            const clonedImg = clonedDoc.querySelector('.imagen-adjunta');
+            clonedImg.style.transform = 'none'; 
+            clonedImg.style.left = '1.55px'; // Aseguramos posición fija
+        }
+    }).then(function(canvas) {
+        const link = document.createElement('a');
+        link.download = 'display_' + Date.now() + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        btn.innerText = "2. Exportar Display";
+        btn.disabled = false;
+    });
 });
 </script>
 
