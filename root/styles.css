@@ -76,3 +76,23 @@ body {
     left: 0;
     z-index: 1;
 }
+.imagen-adjunta {
+    position: absolute;
+    top: 185px;
+    /* (Ancho contenedor 480 - Ancho imagen 476.9) / 2 = 1.55px */
+    left: 1.55px; 
+    width: 476.9px;
+    height: 218.5px;
+    overflow: hidden;
+    z-index: 5;
+    background: transparent; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#imgField {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
