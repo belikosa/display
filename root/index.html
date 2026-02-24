@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cora Display Bienvenida</title>
@@ -9,11 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
    
     <style>
-
+        /* Fuentes */
         @font-face {
-        font-family: 'Helvetica-Tarjetero';
-        src: url('./assets/fonts/HelveticaNeueLTPro-Roman.ttf') format('truetype');
-    }
+            font-family: 'Helvetica-Tarjetero';
+            src: url('./assets/fonts/HelveticaNeueLTPro-Roman.ttf') format('truetype');
+        }
 
         * {
             margin: 0;
@@ -22,7 +21,7 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Arial', sans-serif;
             background: #e5e5e5;
             display: flex;
             justify-content: center;
@@ -39,6 +38,7 @@
             justify-content: center;
         }
 
+        /* Contenedor del Diseño */
         #container {
             width: 480px;
             height: 640px;
@@ -47,7 +47,6 @@
             background: transparent;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             border-radius: 8px;
-            flex-shrink: 0; 
         }
 
         #bg-image {
@@ -72,16 +71,15 @@
             text-align: center;
             z-index: 10;
             outline: none;
-            font-family: 'Helvetica-Tarjetero', 'Arial', sans-serif;
-            text-transform: none;
+            font-family: 'Helvetica-Tarjetero', sans-serif;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .imagen-adjunta {
             position: absolute;
             top: 185px;
-            left: 50%;
-            transform: translateX(-50%);
+            /* Centrado manual: (480px total - 476.9px ancho) / 2 = 1.55px */
+            left: 1.55px; 
             width: 476.9px;
             height: 218.5px;
             overflow: hidden;
@@ -99,6 +97,7 @@
             display: none;
         }
 
+        /* Controles */
         .controls {
             background: white;
             padding: 25px;
@@ -115,7 +114,7 @@
             width: 100%;
             padding: 12px;
             background: #007bff;
-            color: white;
+            color: transparent;
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -132,7 +131,7 @@
     <div id="container">
         <img src="./assets/images/Mesa de trabajo 1-100.jpg" id="bg-image" alt="Background">
         
-        <div class="campo-de-texto" id="campo1" contenteditable="true">Nombre</div>
+        <div class="campo-de-texto" id="campo1" contenteditable="true">NOMBRE DEL INVITADO</div>
         
         <div class="imagen-adjunta">
             <img id="imgField" alt="User Image">
@@ -150,7 +149,7 @@
 </div>
 
 <script>
-// 1. FUNCIÓN PARA CARGAR Y MOSTRAR LA IMAGEN
+// 1. CARGA DE IMAGEN
 document.getElementById('uploadImg').addEventListener('change', function(e) {
     const reader = new FileReader();
     const file = e.target.files[0];
@@ -158,7 +157,7 @@ document.getElementById('uploadImg').addEventListener('change', function(e) {
     reader.onload = function(event) {
         const imgField = document.getElementById('imgField');
         imgField.src = event.target.result;
-        imgField.style.display = 'block'; // Forzamos que se vea
+        imgField.style.display = 'block';
     }
 
     if (file) {
@@ -166,31 +165,34 @@ document.getElementById('uploadImg').addEventListener('change', function(e) {
     }
 });
 
-// 2. FUNCIÓN PARA EXPORTAR (Sin errores de desplazamiento)
+// 2. EXPORTACIÓN CORREGIDA A 480x640px
 document.getElementById('btnExport').addEventListener('click', function() {
     const btn = this;
     const container = document.getElementById('container');
     
     btn.innerText = "Generando...";
+    btn.style.color = "white";
     btn.disabled = true;
 
     html2canvas(container, {
-        scale: 2,
+        width: 480,
+        height: 640,
+        scale: 1,
         useCORS: true,
-        backgroundColor: null,
-        // Importante: eliminamos transforms internos durante la captura
-        onclone: (clonedDoc) => {
-            const clonedImg = clonedDoc.querySelector('.imagen-adjunta');
-            clonedImg.style.transform = 'none'; 
-            clonedImg.style.left = '1.55px'; // Aseguramos posición fija
-        }
+        allowTaint: true,
+        backgroundColor: null
     }).then(function(canvas) {
+
         const link = document.createElement('a');
-        link.download = 'display_' + Date.now() + '.png';
+        link.download = 'display_640x480_' + Date.now() + '.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
         
         btn.innerText = "2. Exportar Display";
+        btn.disabled = false;
+    }).catch(err => {
+        console.error("Error al exportar:", err);
+        btn.innerText = "Error al exportar";
         btn.disabled = false;
     });
 });
