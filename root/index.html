@@ -38,7 +38,6 @@
             justify-content: center;
         }
 
-        /* Contenedor del Diseño */
         #container {
             width: 480px;
             height: 640px;
@@ -74,28 +73,26 @@
             font-family: 'Helvetica-Tarjetero', sans-serif;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
-
         .imagen-adjunta {
-            position: absolute;
-            top: 185px;
-            /* Centrado manual: (480px total - 476.9px ancho) / 2 = 1.55px */
-            left: 1.55px; 
-            width: 476.9px;
-            height: 218.5px;
-            overflow: hidden;
-            z-index: 5;
-            background: transparent; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    position: absolute;
+    top: 185px;
+    left: 2px; 
+    width: 476px; 
+    height: 218px;
+    overflow: hidden;
+    z-index: 5;
+    background: transparent; /* Fondo negro para evitar bordes blancos si la imagen no carga */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        #imgField {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
+#imgField {
+    /* Eliminamos el object-fit del CSS para que no confunda a la librería */
+    display: none; 
+    max-width: none; 
+    max-height: none;
+}
 
         /* Controles */
         .controls {
@@ -114,7 +111,7 @@
             width: 100%;
             padding: 12px;
             background: #007bff;
-            color: transparent;
+            color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -131,7 +128,7 @@
     <div id="container">
         <img src="./assets/images/Mesa de trabajo 1-100.jpg" id="bg-image" alt="Background">
         
-        <div class="campo-de-texto" id="campo1" contenteditable="true">NOMBRE DEL INVITADO</div>
+        <div class="campo-de-texto" id="campo1" contenteditable="true">Nombre</div>
         
         <div class="imagen-adjunta">
             <img id="imgField" alt="User Image">
@@ -143,8 +140,10 @@
         
         <label for="uploadImg">1. Adjunte una imagen</label>
         <input type="file" id="uploadImg" accept="image/*">
+        <label for ="campo1">2. Edite el nombre</label>
+        <input type="text" id="campo1" placeholder="Escriba el nombre aquí" value="Nombre">
         
-        <button id="btnExport">2. Exportar Display</button>
+        <button id="btnExport">3. Exportar Display</button>
     </div>
 </div>
 
@@ -165,13 +164,11 @@ document.getElementById('uploadImg').addEventListener('change', function(e) {
     }
 });
 
-// 2. EXPORTACIÓN CORREGIDA A 480x640px
 document.getElementById('btnExport').addEventListener('click', function() {
     const btn = this;
     const container = document.getElementById('container');
     
     btn.innerText = "Generando...";
-    btn.style.color = "white";
     btn.disabled = true;
 
     html2canvas(container, {
@@ -179,20 +176,51 @@ document.getElementById('btnExport').addEventListener('click', function() {
         height: 640,
         scale: 1,
         useCORS: true,
-        allowTaint: true,
-        backgroundColor: null
-    }).then(function(canvas) {
+        logging: false,
+        backgroundColor: null,
+        onclone: (clonedDoc) => {
+            const img = clonedDoc.getElementById('imgField');
+            const parent = clonedDoc.querySelector('.imagen-adjunta');
+            
+            if (img && img.src) {
+                // Forzamos el comportamiento "Object-fit: Cover" manualmente en el clon
+                const parentWidth = 476;
+                const parentHeight = 218;
+                const imgRatio = img.naturalWidth / img.naturalHeight;
+                const containerRatio = parentWidth / parentHeight;
 
+                img.style.display = "block";
+                img.style.position = "absolute";
+
+                if (imgRatio > containerRatio) {
+                    // La imagen es más ancha que el contenedor
+                    img.style.height = parentHeight + "px";
+                    img.style.width = "auto";
+                    const newWidth = parentHeight * imgRatio;
+                    img.style.left = `-${(newWidth - parentWidth) / 2}px`;
+                    img.style.top = "0";
+                } else {
+                    // La imagen es más alta que el contenedor
+                    img.style.width = parentWidth + "px";
+                    img.style.height = "auto";
+                    const newHeight = parentWidth / imgRatio;
+                    img.style.top = `-${(newHeight - parentHeight) / 2}px`;
+                    img.style.left = "0";
+                }
+            }
+        }
+    }).then(function(canvas) {
+        // Generar descarga directa desde el canvas de html2canvas (es más limpio)
         const link = document.createElement('a');
-        link.download = 'display_640x480_' + Date.now() + '.png';
-        link.href = canvas.toDataURL('image/png');
+        link.download = 'cora_display_' + Date.now() + '.png';
+        link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
         
-        btn.innerText = "2. Exportar Display";
+        btn.innerText = "3. Exportar Display";
         btn.disabled = false;
     }).catch(err => {
-        console.error("Error al exportar:", err);
-        btn.innerText = "Error al exportar";
+        console.error("Error:", err);
+        btn.innerText = "Error";
         btn.disabled = false;
     });
 });
