@@ -38,14 +38,15 @@
             justify-content: center;
         }
 
+        /* Contenedor Principal Blindado */
         #container {
             width: 480px;
             height: 640px;
             position: relative;
             overflow: hidden;
-            background: transparent;
+            background-color: #ffffff; /* Evita transparencias en bordes */
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            border-radius: 8px;
+            border-radius: 0; /* Mejor sin radio para evitar alias en la exportación */
         }
 
         #bg-image {
@@ -58,41 +59,43 @@
             z-index: 1;
         }
 
+        /* Estilo del Nombre */
         .campo-de-texto {
             position: absolute;
             top: 135px;
             left: 0;
             width: 100%; 
-            padding: 10px 0;
-            font-size: 30px; 
+            padding: 0 10px;
+            font-size: 32px; 
             font-weight: 600;
             color: #fff;
             text-align: center;
             z-index: 10;
-            outline: none;
-            font-family: 'Helvetica-Tarjetero', sans-serif;
+            font-family: 'Helvetica-Tarjetero', 'Helvetica', 'Arial', sans-serif;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            pointer-events: none; 
+            text-transform: none; 
         }
-        .imagen-adjunta {
-    position: absolute;
-    top: 185px;
-    left: 2px; 
-    width: 476px; 
-    height: 218px;
-    overflow: hidden;
-    z-index: 5;
-    background: transparent; /* Fondo negro para evitar bordes blancos si la imagen no carga */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
-#imgField {
-    /* Eliminamos el object-fit del CSS para que no confunda a la librería */
-    display: none; 
-    max-width: none; 
-    max-height: none;
-}
+        .imagen-adjunta {
+            position: absolute;
+            top: 185px;
+            left: 2px; 
+            width: 476px; 
+            height: 218px;
+            overflow: hidden;
+            z-index: 5;
+            background: transparent; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #imgField {
+            display: none; 
+            max-width: none; 
+            max-height: none;
+        }
 
         /* Controles */
         .controls {
@@ -127,8 +130,7 @@
 <div class="interface-container">
     <div id="container">
         <img src="./assets/images/Mesa de trabajo 1-100.jpg" id="bg-image" alt="Background">
-        
-        <div class="campo-de-texto" id="campo1" contenteditable="true">Nombre</div>
+        <div class="campo-de-texto" id="displayName">NOMBRE</div>
         
         <div class="imagen-adjunta">
             <img id="imgField" alt="User Image">
@@ -140,30 +142,36 @@
         
         <label for="uploadImg">1. Adjunte una imagen</label>
         <input type="file" id="uploadImg" accept="image/*">
-        <label for ="campo1">2. Edite el nombre</label>
-        <input type="text" id="campo1" placeholder="Escriba el nombre aquí" value="Nombre">
+
+        <label for="inputName">2. Edite el nombre</label>
+        <input type="text" id="inputName" placeholder="Escriba el nombre aquí" maxlength="25">
         
         <button id="btnExport">3. Exportar Display</button>
     </div>
 </div>
 
 <script>
-// 1. CARGA DE IMAGEN
+// Sincronizar Input con Diseño
+const inputName = document.getElementById('inputName');
+const displayName = document.getElementById('displayName');
+
+inputName.addEventListener('input', function() {
+    displayName.innerText = this.value
+});
+
+// Carga de Imagen
 document.getElementById('uploadImg').addEventListener('change', function(e) {
     const reader = new FileReader();
     const file = e.target.files[0];
-
     reader.onload = function(event) {
         const imgField = document.getElementById('imgField');
         imgField.src = event.target.result;
         imgField.style.display = 'block';
     }
-
-    if (file) {
-        reader.readAsDataURL(file);
-    }
+    if (file) reader.readAsDataURL(file);
 });
 
+// Exportación
 document.getElementById('btnExport').addEventListener('click', function() {
     const btn = this;
     const container = document.getElementById('container');
@@ -177,49 +185,40 @@ document.getElementById('btnExport').addEventListener('click', function() {
         scale: 1,
         useCORS: true,
         logging: false,
-        backgroundColor: null,
+        backgroundColor: "#ffffff",
         onclone: (clonedDoc) => {
             const img = clonedDoc.getElementById('imgField');
-            const parent = clonedDoc.querySelector('.imagen-adjunta');
-            
             if (img && img.src) {
-                // Forzamos el comportamiento "Object-fit: Cover" manualmente en el clon
                 const parentWidth = 476;
                 const parentHeight = 218;
                 const imgRatio = img.naturalWidth / img.naturalHeight;
                 const containerRatio = parentWidth / parentHeight;
-
                 img.style.display = "block";
                 img.style.position = "absolute";
 
                 if (imgRatio > containerRatio) {
-                    // La imagen es más ancha que el contenedor
                     img.style.height = parentHeight + "px";
                     img.style.width = "auto";
                     const newWidth = parentHeight * imgRatio;
                     img.style.left = `-${(newWidth - parentWidth) / 2}px`;
-                    img.style.top = "0";
                 } else {
-                    // La imagen es más alta que el contenedor
                     img.style.width = parentWidth + "px";
                     img.style.height = "auto";
                     const newHeight = parentWidth / imgRatio;
                     img.style.top = `-${(newHeight - parentHeight) / 2}px`;
-                    img.style.left = "0";
                 }
             }
         }
     }).then(function(canvas) {
-        // Generar descarga directa desde el canvas de html2canvas (es más limpio)
         const link = document.createElement('a');
-        link.download = 'cora_display_' + Date.now() + '.png';
+        link.download = `display_${inputName.value || 'cliente'}.png`;
         link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
         
         btn.innerText = "3. Exportar Display";
         btn.disabled = false;
     }).catch(err => {
-        console.error("Error:", err);
+        console.error(err);
         btn.innerText = "Error";
         btn.disabled = false;
     });
