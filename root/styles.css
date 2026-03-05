@@ -34,14 +34,14 @@ body {
     max-width: 1200px;
     margin: auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 30px;
     text-align: left;
 }
 
 .card img {
     width: 100%;
-    height: 480px;
+    height: 470px;
     object-fit: cover;
     border-radius: 4px;
 }
@@ -148,3 +148,4 @@ body {
     height: 100%;
     object-fit: cover;
 }
+
