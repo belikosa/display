@@ -212,7 +212,7 @@ document.getElementById('btnExport').addEventListener('click', function() {
     }).then(function(canvas) {
         const link = document.createElement('a');
         link.download = `display_${inputName.value || 'cliente'}.jpg`;
-        link.href = canvas.toDataURL('image/jpg', 1.0);
+        link.href = canvas.toDataURL('image/jpeg', 1.0);
         link.click();
         
         btn.innerText = "3. Exportar Display";
