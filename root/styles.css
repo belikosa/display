@@ -31,7 +31,7 @@ body {
 }
 
 .gallery {
-    max-width: 1300px;
+    max-width: 1600px;
     margin: auto;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -148,5 +148,6 @@ body {
     height: 100%;
     object-fit: cover;
 }
+
 
 
